@@ -82,27 +82,28 @@ def strong_attack(source_path, target_path):
     print('Source %i x %i' %(m,n))
     print('Target %i x %i' %(m_prime, n_prime))
     in_max = max(_[1] for _ in source_img.getextrema())
-    # fetchin coef matrices
+    # fetching coef matrices
     CL, CR = get_coefs(m,n,m_prime, n_prime, in_max)
     print('CL %i x %i'%CL.shape)
     print('CR %i x %i'%CR.shape)
     delta_v = np.zeros((m, n_prime,3))
-    # print(delta_v.shape)
+
     source_prime_img = ScaleFunc(source_img, m, n_prime)
     source_prime = np.array(source_prime_img)
-    # print(source_prime.shape)
-    # print(target.shape)
+    source_prime = np.swapaxes(source_prime, 0, 2)
+    source_prime = np.swapaxes(source_prime, 0, 1)
+
     for col in range(n_prime - 1):
         for color in range(3):
             print('Currently at column %i for channel %i'%(col, color))
             delta_v[:,col, color] = get_pertubation(
-                source_prime[color, :, col],
+                source_prime[:, col, color],
                 target[:,col, color],
                 CL,
                 in_max
                 )
     A_star = np.absolute((source_prime + delta_v).astype(int))
-    delta_h = np.zeros((m, n))
+    delta_h = np.zeros((m, n, 3))
     for row in range(m-1):
         for color in range(3):
             print('Currently at row %i for channel %i'%(col, color))
